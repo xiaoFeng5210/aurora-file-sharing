@@ -4,14 +4,14 @@ import type { FileItem as FileItemType } from '../types';
 
 // 示例数据
 const MOCK_FILES: FileItemType[] = [
-  { id: 1, name: '个人文档', type: 'folder', size: null, modified: '2023-05-15', shared: false },
-  { id: 2, name: '工作文件', type: 'folder', size: null, modified: '2023-05-14', shared: true },
-  { id: 3, name: '项目计划.docx', type: 'doc', size: '2.3 MB', modified: '2023-05-13', shared: false },
-  { id: 4, name: '财务报表.xlsx', type: 'spreadsheet', size: '4.5 MB', modified: '2023-05-12', shared: true },
-  { id: 5, name: '演示文稿.pptx', type: 'presentation', size: '8.1 MB', modified: '2023-05-11', shared: false },
-  { id: 6, name: '产品图片.jpg', type: 'image', size: '1.2 MB', modified: '2023-05-10', shared: false },
-  { id: 7, name: '用户手册.pdf', type: 'pdf', size: '3.4 MB', modified: '2023-05-09', shared: true },
-  { id: 8, name: '视频教程.mp4', type: 'video', size: '15.7 MB', modified: '2023-05-08', shared: false },
+  // { id: 1, name: '个人文档', type: 'folder', size: null, modified: '2023-05-15', shared: false },
+  // { id: 2, name: '工作文件', type: 'folder', size: null, modified: '2023-05-14', shared: true },
+  // { id: 3, name: '项目计划.docx', type: 'doc', size: '2.3 MB', modified: '2023-05-13', shared: false },
+  // { id: 4, name: '财务报表.xlsx', type: 'spreadsheet', size: '4.5 MB', modified: '2023-05-12', shared: true },
+  // { id: 5, name: '演示文稿.pptx', type: 'presentation', size: '8.1 MB', modified: '2023-05-11', shared: false },
+  // { id: 6, name: '产品图片.jpg', type: 'image', size: '1.2 MB', modified: '2023-05-10', shared: false },
+  // { id: 7, name: '用户手册.pdf', type: 'pdf', size: '3.4 MB', modified: '2023-05-09', shared: true },
+  // { id: 8, name: '视频教程.mp4', type: 'video', size: '15.7 MB', modified: '2023-05-08', shared: false },
 ];
 
 const FileList = () => {
