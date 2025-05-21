@@ -3,3 +3,21 @@
 // =================================================================================
 
 package file_list
+
+import (
+	"fmt"
+
+	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/google/uuid"
+)
+
+func GenerateRandomID() string {
+	return uuid.New().String()
+}
+
+func FileUpload(r *ghttp.Request) {
+	file := r.GetUploadFile("file")
+	fmt.Println(file)
+
+	r.Response.Write("upload success")
+}

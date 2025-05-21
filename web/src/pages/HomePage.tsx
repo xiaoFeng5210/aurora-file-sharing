@@ -242,6 +242,111 @@ const FileList = ({ files, onDeleteFile }: { files: FileItem[], onDeleteFile: (i
 const HomePage = () => {
   const [files, setFiles] = useState<FileItem[]>([]);
 
+  // 上传文件到服务器
+  const uploadFileToServer = async (file: File, fileItem: FileItem) => {
+    try {
+      // 创建FormData对象
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // 可以添加其他需要的字段
+      formData.append('fileName', file.name);
+
+      // 创建上传请求
+      const xhr = new XMLHttpRequest();
+
+      // 设置进度监听
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+
+          // 更新文件状态
+          setFiles(prevFiles => {
+            const fileIndex = prevFiles.findIndex(f => f.id === fileItem.id);
+            if (fileIndex === -1) return prevFiles;
+
+            const updatedFiles = [...prevFiles];
+            updatedFiles[fileIndex] = {
+              ...updatedFiles[fileIndex],
+              progress: percentComplete
+            };
+            return updatedFiles;
+          });
+        }
+      });
+
+      // 设置请求完成处理
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          // 上传成功
+          setFiles(prevFiles => {
+            const fileIndex = prevFiles.findIndex(f => f.id === fileItem.id);
+            if (fileIndex === -1) return prevFiles;
+
+            const updatedFiles = [...prevFiles];
+            updatedFiles[fileIndex] = {
+              ...updatedFiles[fileIndex],
+              status: 'success',
+              progress: 100
+            };
+            return updatedFiles;
+          });
+        } else {
+          // 上传失败
+          setFiles(prevFiles => {
+            const fileIndex = prevFiles.findIndex(f => f.id === fileItem.id);
+            if (fileIndex === -1) return prevFiles;
+
+            const updatedFiles = [...prevFiles];
+            updatedFiles[fileIndex] = {
+              ...updatedFiles[fileIndex],
+              status: 'error',
+              progress: 0
+            };
+            return updatedFiles;
+          });
+        }
+      });
+
+      // 设置错误处理
+      xhr.addEventListener('error', () => {
+        setFiles(prevFiles => {
+          const fileIndex = prevFiles.findIndex(f => f.id === fileItem.id);
+          if (fileIndex === -1) return prevFiles;
+
+          const updatedFiles = [...prevFiles];
+          updatedFiles[fileIndex] = {
+            ...updatedFiles[fileIndex],
+            status: 'error',
+            progress: 0
+          };
+          return updatedFiles;
+        });
+      });
+
+      // 打开连接并发送请求
+      xhr.open('POST', 'http://localhost:8000/upload', true);
+      xhr.send(formData);
+
+    } catch (error) {
+      console.error('上传文件出错:', error);
+
+      // 更新文件状态为错误
+      setFiles(prevFiles => {
+        const fileIndex = prevFiles.findIndex(f => f.id === fileItem.id);
+        if (fileIndex === -1) return prevFiles;
+
+        const updatedFiles = [...prevFiles];
+        updatedFiles[fileIndex] = {
+          ...updatedFiles[fileIndex],
+          status: 'error',
+          progress: 0
+        };
+        return updatedFiles;
+      });
+    }
+  };
+
   // 处理添加文件
   const handleFilesAdded = (newFiles: File[]) => {
     const newFileItems: FileItem[] = newFiles.map(file => ({
@@ -257,40 +362,9 @@ const HomePage = () => {
     // 添加新文件
     setFiles(prev => [...prev, ...newFileItems]);
 
-    // 模拟上传过程
-    newFileItems.forEach(fileItem => {
-      const uploadInterval = setInterval(() => {
-        setFiles(prevFiles => {
-          const fileIndex = prevFiles.findIndex(f => f.id === fileItem.id);
-          if (fileIndex === -1) {
-            clearInterval(uploadInterval);
-            return prevFiles;
-          }
-
-          const file = prevFiles[fileIndex];
-          const newProgress = (file.progress || 0) + 10;
-
-          // 如果上传完成
-          if (newProgress >= 100) {
-            clearInterval(uploadInterval);
-            const updatedFiles = [...prevFiles];
-            updatedFiles[fileIndex] = {
-              ...file,
-              status: 'success',
-              progress: 100
-            };
-            return updatedFiles;
-          }
-
-          // 更新进度
-          const updatedFiles = [...prevFiles];
-          updatedFiles[fileIndex] = {
-            ...file,
-            progress: newProgress
-          };
-          return updatedFiles;
-        });
-      }, 500); // 每500毫秒更新一次进度
+    // 上传每个文件
+    newFiles.forEach((file, index) => {
+      uploadFileToServer(file, newFileItems[index]);
     });
   };
 
