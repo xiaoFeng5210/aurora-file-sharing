@@ -7,6 +7,7 @@ import (
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
 
+	"aurora-file-sharing/internal/controller/file_list"
 	"aurora-file-sharing/internal/controller/hello"
 )
 
@@ -21,6 +22,7 @@ var (
 				group.Middleware(ghttp.MiddlewareHandlerResponse)
 				group.Bind(
 					hello.NewV1(),
+					file_list.NewV1(),
 				)
 			})
 			s.Run()
