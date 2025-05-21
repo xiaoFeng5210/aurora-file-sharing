@@ -33,6 +33,11 @@ const (
 `
 )
 
+func MiddlewareCORS(r *ghttp.Request) {
+	r.Response.CORSDefault()
+	r.Middleware.Next()
+}
+
 var (
 	Main = gcmd.Command{
 		Name:  "main",
@@ -49,6 +54,8 @@ var (
 			})
 
 			s.Group("/upload", func(group *ghttp.RouterGroup) {
+				// 使用解决跨域的中间件
+				group.Middleware(MiddlewareCORS)
 				group.POST("/", file_list.FileUpload)
 			})
 			s.SetSwaggerUITemplate(MySwaggerUITemplate)

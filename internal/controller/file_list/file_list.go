@@ -5,8 +5,7 @@
 package file_list
 
 import (
-	"fmt"
-
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/google/uuid"
 )
@@ -17,7 +16,32 @@ func GenerateRandomID() string {
 
 func FileUpload(r *ghttp.Request) {
 	file := r.GetUploadFile("file")
-	fmt.Println(file)
+	if file == nil {
+		r.Response.Write("file is nil")
+		r.Response.WriteJson(
+			g.Map{
+				"code":    400,
+				"message": "文件为空",
+			},
+		)
+		return
+	}
 
-	r.Response.Write("upload success")
+	fileName, err := file.Save("upload")
+	if err != nil {
+		r.Response.Write("upload failed")
+		r.Response.WriteJson(
+			g.Map{
+				"code":    500,
+				"message": "文件上传失败",
+			},
+		)
+	}
+	r.Response.WriteJson(
+		g.Map{
+			"code":    200,
+			"message": "文件上传成功",
+			"data":    fileName,
+		},
+	)
 }
