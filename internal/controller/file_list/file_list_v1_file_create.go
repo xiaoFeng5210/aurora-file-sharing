@@ -21,8 +21,27 @@ func (c *ControllerV1) FileCreate(ctx context.Context, req *v1.FileCreateReq) (r
 	} else {
 		fileType = "txt"
 	}
-	// FIXME:
-	filePath := "测试路径"
+
+	// 如果文件名称重复，我们覆盖这条记录
+	record, err := dao.FileList.Ctx(ctx).Where("file_name = ?", req.FileName).One()
+	if err != nil {
+		return nil, err
+	}
+	if record != nil {
+		_, err = dao.FileList.Ctx(ctx).Where("file_name = ?", req.FileName).Update(
+			map[string]any{
+				"file_oss_path":   uploadDir + "/" + uploadFileName,
+				"file_local_path": uploadDir + "/" + uploadFileName,
+			},
+		)
+		if err != nil {
+			return nil, err
+		}
+		res.FileId = uuid
+		return
+	}
+
+	filePath := uploadDir + "/" + uploadFileName
 	_, err = dao.FileList.Ctx(ctx).Data(do.FileList{
 		TagId:         req.TagId,
 		FileId:        GenerateRandomID(),

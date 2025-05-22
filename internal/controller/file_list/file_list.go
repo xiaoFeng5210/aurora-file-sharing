@@ -10,6 +10,11 @@ import (
 	"github.com/google/uuid"
 )
 
+var (
+	uploadDir      = "upload"
+	uploadFileName = ""
+)
+
 func GenerateRandomID() string {
 	return uuid.New().String()
 }
@@ -27,8 +32,9 @@ func FileUpload(r *ghttp.Request) {
 		return
 	}
 
-	fileName, err := file.Save("upload")
+	fileName, err := file.Save(uploadDir)
 	if err != nil {
+		uploadFileName = ""
 		r.Response.Write("upload failed")
 		r.Response.WriteJson(
 			g.Map{
@@ -37,6 +43,8 @@ func FileUpload(r *ghttp.Request) {
 			},
 		)
 	}
+
+	uploadFileName = fileName
 	r.Response.WriteJson(
 		g.Map{
 			"code":    200,
