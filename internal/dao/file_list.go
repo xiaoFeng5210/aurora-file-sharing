@@ -9,6 +9,8 @@ import (
 	"context"
 	"database/sql"
 
+	v1 "aurora-file-sharing/api/file_list/v1"
+
 	"github.com/gogf/gf/v2/database/gdb"
 )
 
@@ -22,6 +24,16 @@ var (
 	// FileList is a globally accessible object for table file_list operations.
 	FileList = fileListDao{internal.NewFileListDao()}
 )
+
+// 通用数据库查询
+func (d *fileListDao) Query(ctx context.Context, data *v1.FileListReq) (res gdb.Model) {
+	model := d.Ctx(ctx)
+	if data.TagId != "" {
+		model = model.Where("tag_id = ?", data.TagId)
+	}
+	model = model.Limit(data.PageSize, (data.Page-1)*data.PageSize)
+	return
+}
 
 func (d *fileListDao) InsertAndGetId(ctx context.Context, data map[string]any) (res int64, err error) {
 	res, err = d.Ctx(ctx).Data(data).InsertAndGetId()

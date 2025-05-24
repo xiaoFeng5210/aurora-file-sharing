@@ -9,7 +9,14 @@ import (
 
 func (c *ControllerV1) FileList(ctx context.Context, req *v1.FileListReq) (res *v1.FileListRes, err error) {
 	res = &v1.FileListRes{}
-	// Ctx方法创建orm gdb.Model
-	err = dao.FileList.Ctx(ctx).Where("tag_id = ?", req.TagId).Limit(req.PageSize, (req.Page-1)*req.PageSize).Scan(&res.List)
+	model := dao.FileList.Query(ctx, req)
+	err = model.Scan(&res.List)
+	if err != nil {
+		return nil, err
+	}
+	res.Total, err = model.Count()
+	if err != nil {
+		return nil, err
+	}
 	return
 }

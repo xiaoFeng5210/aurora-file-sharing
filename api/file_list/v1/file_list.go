@@ -14,7 +14,8 @@ type FileListReq struct {
 	PageSize int    `v:"min:1" dc:"每页数量"`
 }
 type FileListRes struct {
-	List []*entity.FileList `json:"list" dc:"文件列表"`
+	List  []*entity.FileList `json:"list" dc:"文件列表"`
+	Total int                `json:"total" dc:"总数量"`
 }
 
 // 创建文件数据
