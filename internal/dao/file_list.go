@@ -43,8 +43,8 @@ func (d *fileListDao) UpdateByFileName(ctx context.Context, fileName string, dat
 }
 
 // Add your custom methods and functionality below.
-func HasExistFileName(ctx context.Context, fileName string) (res gdb.Record, err error) {
-	res, err = FileList.Ctx(ctx).Where("file_name = ?", fileName).One()
+func (d *fileListDao) HasExistFileName(ctx context.Context, fileName string) (res gdb.Record, err error) {
+	res, err = d.Ctx(ctx).Where("file_name = ?", fileName).One()
 	if err != nil {
 		return nil, err
 	}

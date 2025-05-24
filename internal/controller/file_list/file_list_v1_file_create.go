@@ -20,7 +20,7 @@ func (c *ControllerV1) FileCreate(ctx context.Context, req *v1.FileCreateReq) (r
 	} else {
 		fileType = "txt"
 	}
-	record, err := dao.HasExistFileName(ctx, req.FileName)
+	record, err := dao.FileList.HasExistFileName(ctx, req.FileName)
 	if err != nil {
 		return nil, err
 	}
