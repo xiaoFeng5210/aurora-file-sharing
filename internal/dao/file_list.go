@@ -23,7 +23,6 @@ var (
 	FileList = fileListDao{internal.NewFileListDao()}
 )
 
-// 数据库新增
 func (d *fileListDao) InsertAndGetId(ctx context.Context, data map[string]any) (res int64, err error) {
 	res, err = d.Ctx(ctx).Data(data).InsertAndGetId()
 	if err != nil {

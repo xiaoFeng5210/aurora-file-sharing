@@ -5,7 +5,6 @@ import (
 
 	v1 "aurora-file-sharing/api/file_list/v1"
 	"aurora-file-sharing/internal/dao"
-	"aurora-file-sharing/internal/model/do"
 
 	"strings"
 )
@@ -38,15 +37,15 @@ func (c *ControllerV1) FileCreate(ctx context.Context, req *v1.FileCreateReq) (r
 	}
 
 	filePath := uploadDir + "/" + uploadFileName
-	_, err = dao.FileList.Ctx(ctx).Data(do.FileList{
-		TagId:         req.TagId,
-		FileId:        GenerateRandomID(),
-		FileName:      req.FileName,
-		FileSize:      100,
-		FileType:      fileType,
-		FileOssPath:   filePath,
-		FileLocalPath: filePath,
-	}).InsertAndGetId()
+	_, err = dao.FileList.InsertAndGetId(ctx, map[string]any{
+		"tag_id":          req.TagId,
+		"file_id":         GenerateRandomID(),
+		"file_name":       req.FileName,
+		"file_size":       100,
+		"file_type":       fileType,
+		"file_oss_path":   filePath,
+		"file_local_path": filePath,
+	})
 	if err != nil {
 		return nil, err
 	}
