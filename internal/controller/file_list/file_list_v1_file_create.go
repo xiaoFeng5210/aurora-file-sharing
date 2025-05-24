@@ -21,19 +21,15 @@ func (c *ControllerV1) FileCreate(ctx context.Context, req *v1.FileCreateReq) (r
 	} else {
 		fileType = "txt"
 	}
-
-	// 如果文件名称重复，我们覆盖这条记录
-	record, err := dao.FileList.Ctx(ctx).Where("file_name = ?", req.FileName).One()
+	record, err := dao.HasExistFileName(ctx, req.FileName)
 	if err != nil {
 		return nil, err
 	}
 	if record != nil {
-		_, err = dao.FileList.Ctx(ctx).Where("file_name = ?", req.FileName).Update(
-			map[string]any{
-				"file_oss_path":   uploadDir + "/" + uploadFileName,
-				"file_local_path": uploadDir + "/" + uploadFileName,
-			},
-		)
+		_, err = dao.FileList.UpdateByFileName(ctx, req.FileName, map[string]any{
+			"file_oss_path":   uploadDir + "/" + uploadFileName,
+			"file_local_path": uploadDir + "/" + uploadFileName,
+		})
 		if err != nil {
 			return nil, err
 		}

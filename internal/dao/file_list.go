@@ -6,6 +6,10 @@ package dao
 
 import (
 	"aurora-file-sharing/internal/dao/internal"
+	"context"
+	"database/sql"
+
+	"github.com/gogf/gf/v2/database/gdb"
 )
 
 // fileListDao is the data access object for the table file_list.
@@ -19,4 +23,32 @@ var (
 	FileList = fileListDao{internal.NewFileListDao()}
 )
 
+// 数据库新增
+func (d *fileListDao) InsertAndGetId(ctx context.Context, data map[string]any) (res int64, err error) {
+	res, err = d.Ctx(ctx).Data(data).InsertAndGetId()
+	if err != nil {
+		return 0, err
+	}
+	return
+}
+
+func (d *fileListDao) UpdateByFileName(ctx context.Context, fileName string, data map[string]any) (res sql.Result, err error) {
+	res, err = d.Ctx(ctx).Data(data).Where("file_name = ?", fileName).Update()
+	if err != nil {
+		return nil, err
+	}
+	if _, err = res.RowsAffected(); err != nil {
+		return nil, err
+	}
+	return
+}
+
 // Add your custom methods and functionality below.
+func HasExistFileName(ctx context.Context, fileName string) (res gdb.Record, err error) {
+	res, err = FileList.Ctx(ctx).Where("file_name = ?", fileName).One()
+	if err != nil {
+		return nil, err
+	}
+	return
+
+}
