@@ -10,6 +10,7 @@ import (
 type FileListReq struct {
 	g.Meta   `path:"/file_list" method:"get" tags:"FileList" summary:"Get file list"`
 	TagId    string `dc:"标签ID"`
+	FileName string `dc:"文件名称"`
 	Page     int    `v:"min:1" dc:"页码"`
 	PageSize int    `v:"min:1" dc:"每页数量"`
 }

@@ -26,12 +26,12 @@ var (
 )
 
 // 通用数据库查询
-func (d *fileListDao) Query(ctx context.Context, data *v1.FileListReq) (res gdb.Model) {
-	model := d.Ctx(ctx)
+func (d *fileListDao) Query(ctx context.Context, data *v1.FileListReq) (res *gdb.Model) {
+	res = d.Ctx(ctx)
 	if data.TagId != "" {
-		model = model.Where("tag_id = ?", data.TagId)
+		res = res.Where("tag_id = ?", data.TagId)
 	}
-	model = model.Limit(data.PageSize, (data.Page-1)*data.PageSize)
+	res = res.Limit(data.PageSize, (data.Page-1)*data.PageSize)
 	return
 }
 
