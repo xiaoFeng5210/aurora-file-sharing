@@ -5,6 +5,11 @@
 package file_list
 
 import (
+	"aurora-file-sharing/internal/dao"
+	"context"
+
+	"strings"
+
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/google/uuid"
@@ -45,6 +50,43 @@ func FileUpload(r *ghttp.Request) {
 	}
 
 	uploadFileName = fileName
+	ctx := context.Background()
+	fileType := strings.Split(fileName, ".")[1]
+
+	record, err := dao.FileList.HasExistFileName(ctx, fileName)
+	if err != nil {
+		r.Response.WriteJson(
+			g.Map{
+				"code":    500,
+				"message": "请检查服务器",
+			},
+		)
+	}
+
+	if record != nil {
+		_, err = dao.FileList.UpdateByFileName(ctx, fileName, map[string]any{
+			"file_oss_path":   uploadDir + "/" + fileName,
+			"file_local_path": uploadDir + "/" + fileName,
+		})
+		if err != nil {
+			r.Response.WriteJson(
+				g.Map{
+					"code":    500,
+					"message": "更新文件失败",
+				},
+			)
+		}
+	} else {
+		_, err = dao.FileList.InsertAndGetId(ctx, map[string]any{
+			"tag_id":          "",
+			"file_id":         GenerateRandomID(),
+			"file_name":       fileName,
+			"file_size":       file.Size,
+			"file_type":       fileType,
+			"file_oss_path":   uploadDir + "/" + fileName,
+			"file_local_path": uploadDir + "/" + fileName,
+		})
+	}
 	r.Response.WriteJson(
 		g.Map{
 			"code":    200,
