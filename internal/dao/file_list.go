@@ -25,11 +25,22 @@ var (
 	FileList = fileListDao{internal.NewFileListDao()}
 )
 
+func (d *fileListDao) QueryByFileId(ctx context.Context, fileId string) (res gdb.Record, err error) {
+	res, err = d.Ctx(ctx).Where("file_id = ?", fileId).One()
+	if err != nil {
+		return nil, err
+	}
+	return
+}
+
 // 通用数据库查询
 func (d *fileListDao) Query(ctx context.Context, data *v1.FileListReq) (res *gdb.Model) {
 	res = d.Ctx(ctx)
 	if data.TagId != "" {
 		res = res.Where("tag_id = ?", data.TagId)
+	}
+	if data.FileName != "" {
+		res = res.Where("file_name like ?", "%"+data.FileName+"%")
 	}
 	res = res.Limit(data.PageSize, (data.Page-1)*data.PageSize)
 	return
@@ -54,7 +65,6 @@ func (d *fileListDao) UpdateByFileName(ctx context.Context, fileName string, dat
 	return
 }
 
-// Add your custom methods and functionality below.
 func (d *fileListDao) HasExistFileName(ctx context.Context, fileName string) (res gdb.Record, err error) {
 	res, err = d.Ctx(ctx).Where("file_name = ?", fileName).One()
 	if err != nil {
