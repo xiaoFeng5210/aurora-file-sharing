@@ -59,6 +59,7 @@ var (
 				group.Middleware(MiddlewareCORS)
 				group.POST("/", file_list.FileUpload)
 			})
+
 			s.SetSwaggerUITemplate(MySwaggerUITemplate)
 			s.Run()
 			return nil
