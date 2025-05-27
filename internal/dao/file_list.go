@@ -73,3 +73,16 @@ func (d *fileListDao) HasExistFileName(ctx context.Context, fileName string) (re
 	return
 
 }
+
+func (d *fileListDao) DeleteByFileId(ctx context.Context, fileId string) (res sql.Result, err error) {
+	res, err = d.Ctx(ctx).Where("file_id = ?", fileId).Delete()
+	if err != nil {
+		return nil, err
+	}
+
+	// 也许找不到这个数据，所以需要判断
+	if _, err = res.RowsAffected(); err != nil {
+		return nil, err
+	}
+	return
+}

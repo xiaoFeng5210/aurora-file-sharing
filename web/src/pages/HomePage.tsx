@@ -149,13 +149,22 @@ const FileList = ({ files, onDeleteFile }: { files: FileItem[], onDeleteFile: (i
   const handleDelete = async (file: FileItem) => {
     if (window.confirm(`确定要删除文件 "${file.fileName}" 吗？`)) {
       try {
-        // 这里可以添加删除API调用
-        // const response = await fetch(`http://localhost:8000/file_delete/${file.fileId}`, {
-        //   method: 'DELETE'
-        // });
-        // if (response.ok) {
-        onDeleteFile(file.fileId);
-        // }
+        const response = await fetch(`http://localhost:8000/file_delete`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ fileId: file.fileId })
+        });
+
+        if (response.ok) {
+          // 删除成功，更新UI
+          onDeleteFile(file.fileId);
+          // 可选：重新获取文件列表
+          // fetchFileList();
+        } else {
+          console.error('删除文件失败:', await response.text());
+        }
       } catch (error) {
         console.error('删除文件失败:', error);
       }
@@ -470,7 +479,11 @@ const HomePage = () => {
 
   // 处理删除文件
   const handleDeleteFile = (id: string) => {
+    // 直接从状态中移除该文件
     setFiles(prev => prev.filter(file => file.fileId !== id));
+
+    // 可选：显示删除成功消息
+    // TODO: 添加一个消息提示组件
   };
 
   return (
