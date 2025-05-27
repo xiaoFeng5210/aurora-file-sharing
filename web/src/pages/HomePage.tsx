@@ -158,8 +158,14 @@ const FileList = ({ files, onDeleteFile }: { files: FileItem[], onDeleteFile: (i
         });
 
         if (response.ok) {
+          const result = await response.json();
           // 删除成功，更新UI
-          onDeleteFile(file.fileId);
+          if (result.code === 0) {
+            onDeleteFile(file.fileId);
+          } else {
+            alert(result.message);
+            console.error('删除文件失败:', result.message);
+          }
           // 可选：重新获取文件列表
           // fetchFileList();
         } else {

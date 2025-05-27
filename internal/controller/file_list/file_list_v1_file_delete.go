@@ -9,8 +9,6 @@ import (
 
 	"os"
 
-	"fmt"
-
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/util/gconv"
 )
@@ -19,25 +17,22 @@ func (c *ControllerV1) FileDelete(ctx context.Context, req *v1.FileDeleteReq) (r
 	res = &v1.FileDeleteRes{
 		FileId: req.FileId,
 	}
+	fileInfo, err := dao.FileList.QueryByFileId(ctx, req.FileId)
+	if err != nil {
+		return nil, err
+	}
 
-	if req.FileId != "" {
-		fileInfo, err := dao.FileList.QueryByFileId(ctx, req.FileId)
+	if err = gconv.Struct(fileInfo, &res); err != nil {
+		return nil, gerror.New("转换文件信息失败")
+	}
+
+	if res.FileLocalPath != "" {
+		if _, err := os.Stat(res.FileLocalPath); os.IsNotExist(err) {
+			return nil, gerror.New("文件不存在")
+		}
+		err = os.Remove(res.FileLocalPath)
 		if err != nil {
-			return nil, err
-		}
-
-		execPath, err := os.Executable()
-		fmt.Println(execPath)
-
-		if err = gconv.Struct(fileInfo, &res); err != nil {
-			return nil, err
-		}
-
-		if res.FileLocation != "" {
-			err = os.Remove(res.FileLocation)
-			if err != nil {
-				return nil, gerror.New("删除本地文件失败")
-			}
+			return nil, gerror.New("删除本地文件失败")
 		}
 	}
 

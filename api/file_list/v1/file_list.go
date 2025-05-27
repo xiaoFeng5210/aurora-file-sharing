@@ -36,8 +36,8 @@ type FileDeleteReq struct {
 	FileId string `v:"required" dc:"文件ID"`
 }
 type FileDeleteRes struct {
-	FileId       string `json:"fileId" dc:"文件ID"`
-	FileName     string `json:"fileName" dc:"文件名称"`
-	FileLocation string `json:"fileLocation" dc:"文件路径"`
-	FileOssPath  string `json:"fileOssPath" dc:"文件OSS路径"`
+	FileId        string `json:"fileId" dc:"文件ID"`
+	FileName      string `json:"fileName" dc:"文件名称"`
+	FileLocalPath string `json:"fileLocation" dc:"文件路径"`
+	FileOssPath   string `json:"fileOssPath" dc:"文件OSS路径"`
 }
