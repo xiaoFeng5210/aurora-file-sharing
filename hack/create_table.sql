@@ -42,6 +42,33 @@ COMMENT ON COLUMN tags.updated_at IS '更新时间';
 CREATE INDEX IF NOT EXISTS idx_tag_id ON tags(tag_id);
 
 
+-- 文件标签关联表（多对多关系）
+CREATE TABLE IF NOT EXISTS file_tag_relation (
+  id SERIAL PRIMARY KEY,
+  file_id VARCHAR(255) NOT NULL,
+  tag_id VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  -- 唯一约束，一个文件只能有一对，避免数据冗余
+  UNIQUE(file_id, tag_id)
+);
+-- mysql组合唯一约束 UNIQUE KEY uk_file_tag (file_id, tag_id)
+
+COMMENT ON TABLE file_tag_relation IS '文件和标签的多对多关联表';
+COMMENT ON COLUMN file_tag_relation.file_id IS '文件ID';
+COMMENT ON COLUMN file_tag_relation.tag_id IS '标签ID';
+COMMENT ON COLUMN file_tag_relation.created_at IS '关联创建时间';
+
+-- 创建索引提高查询性能
+CREATE INDEX IF NOT EXISTS idx_file_tag_file_id ON file_tag_relation(file_id);
+CREATE INDEX IF NOT EXISTS idx_file_tag_tag_id ON file_tag_relation(tag_id);
+
+-- 添加外键约束（可选，确保数据完整性）
+-- ALTER TABLE file_tag_relation ADD CONSTRAINT fk_file_tag_file_id 
+--   FOREIGN KEY (file_id) REFERENCES file_list(file_id) ON DELETE CASCADE;
+-- ALTER TABLE file_tag_relation ADD CONSTRAINT fk_file_tag_tag_id 
+--   FOREIGN KEY (tag_id) REFERENCES tags(tag_id) ON DELETE CASCADE;
+
+
 
 
 
