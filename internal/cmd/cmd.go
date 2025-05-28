@@ -9,6 +9,7 @@ import (
 
 	"aurora-file-sharing/internal/controller/file_list"
 	"aurora-file-sharing/internal/controller/hello"
+	"aurora-file-sharing/internal/controller/tags"
 )
 
 const (
@@ -51,6 +52,7 @@ var (
 				group.Bind(
 					hello.NewV1(),
 					file_list.NewV1(),
+					tags.NewV1(),
 				)
 			})
 

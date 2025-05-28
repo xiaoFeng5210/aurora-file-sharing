@@ -5,7 +5,12 @@
 package dao
 
 import (
+	v1 "aurora-file-sharing/api/tags/v1"
 	"aurora-file-sharing/internal/dao/internal"
+
+	"context"
+
+	"github.com/gogf/gf/v2/database/gdb"
 )
 
 // tagsDao is the data access object for the table tags.
@@ -20,3 +25,23 @@ var (
 )
 
 // Add your custom methods and functionality below.
+// 通用数据库查询
+func (d *tagsDao) Query(ctx context.Context, data *v1.TagsReq) (res *gdb.Model) {
+	res = d.Ctx(ctx)
+	if data.TagId != "" {
+		res = res.Where("tag_id = ?", data.TagId)
+	}
+	if data.TagName != "" {
+		res = res.Where("tag_name like ?", "%"+data.TagName+"%")
+	}
+	res = res.Limit(data.PageSize, (data.Page-1)*data.PageSize)
+	return
+}
+
+func (d *tagsDao) QueryByTagId(ctx context.Context, tagId string) (res gdb.Record, err error) {
+	res, err = d.Ctx(ctx).Where("tag_id = ?", tagId).One()
+	if err != nil {
+		return nil, err
+	}
+	return
+}
