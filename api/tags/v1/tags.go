@@ -36,3 +36,23 @@ type DeleteReq struct {
 type DeleteRes struct {
 	TagId string `json:"tagId" dc:"标签ID"`
 }
+
+// 绑定标签
+type BindFileTagReq struct {
+	g.Meta `path:"/tags/bind" method:"post" tags:"标签管理" summary:"绑定标签"`
+	FileId string `v:"required" dc:"文件ID"`
+	TagId  string `v:"required" dc:"标签ID"`
+}
+
+type BindFileTagRes struct {
+}
+
+// 解绑标签
+type UnbindFileTagReq struct {
+	g.Meta `path:"/tags/unbind" method:"post" tags:"标签管理" summary:"解绑标签"`
+	FileId string `v:"required" dc:"文件ID"`
+	TagId  string `v:"required" dc:"标签ID"`
+}
+
+type UnbindFileTagRes struct {
+}

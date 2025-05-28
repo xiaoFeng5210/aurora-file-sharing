@@ -86,3 +86,12 @@ func (d *fileListDao) DeleteByFileId(ctx context.Context, fileId string) (res sq
 	}
 	return
 }
+
+// 查看fileId是否存在
+func (d *fileListDao) HasExistFileId(ctx context.Context, fileId string) (res gdb.Record, err error) {
+	res, err = d.Ctx(ctx).Where("file_id = ?", fileId).One()
+	if err != nil {
+		return nil, err
+	}
+	return
+}

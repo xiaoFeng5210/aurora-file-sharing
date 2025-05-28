@@ -8,6 +8,8 @@ import (
 	"aurora-file-sharing/internal/dao/internal"
 	"context"
 
+	"database/sql"
+
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -24,17 +26,32 @@ var (
 )
 
 // Add your custom methods and functionality below.
-func (d *fileTagRelationDao) Create(ctx context.Context, fileId string, tagId string) (id int64, err error) {
+func (d *fileTagRelationDao) Create(ctx context.Context, fileId string, tagId string) (res sql.Result, err error) {
 	if fileId == "" || tagId == "" {
-		return 0, gerror.New("fileId和tagId不能为空")
+		return nil, gerror.New("fileId和tagId不能为空")
 	}
 	data := g.Map{
 		"file_id": fileId,
 		"tag_id":  tagId,
 	}
-	id, err = d.Ctx(ctx).Data(data).InsertAndGetId()
+	res, err = d.Ctx(ctx).Data(data).Insert()
 	if err != nil {
-		return 0, err
+		return nil, err
+	}
+	return
+}
+
+// 删除
+func (d *fileTagRelationDao) Delete(ctx context.Context, fileId string, tagId string) (res sql.Result, err error) {
+	if fileId == "" || tagId == "" {
+		return nil, gerror.New("fileId和tagId不能为空")
+	}
+	res, err = d.Ctx(ctx).Where("file_id = ? AND tag_id = ?", fileId, tagId).Delete()
+	if err != nil {
+		return nil, err
+	}
+	if rowsAffected, _ := res.RowsAffected(); rowsAffected == 0 {
+		return nil, gerror.New("fileId和tagId没有绑定! 无法解绑")
 	}
 	return
 }

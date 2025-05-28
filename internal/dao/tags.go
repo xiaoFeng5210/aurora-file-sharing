@@ -86,3 +86,12 @@ func (d *tagsDao) DeleteById(ctx context.Context, id int64) (err error) {
 	}
 	return
 }
+
+// 查看tagId是否存在
+func (d *tagsDao) HasExistTagId(ctx context.Context, tagId string) (res gdb.Record, err error) {
+	res, err = d.Ctx(ctx).Where("tag_id = ?", tagId).One()
+	if err != nil {
+		return nil, err
+	}
+	return
+}
