@@ -6,6 +6,9 @@ package dao
 
 import (
 	"aurora-file-sharing/internal/dao/internal"
+	"context"
+
+	"github.com/gogf/gf/v2/frame/g"
 )
 
 // fileTagRelationDao is the data access object for the table file_tag_relation.
@@ -20,3 +23,14 @@ var (
 )
 
 // Add your custom methods and functionality below.
+func (d *fileTagRelationDao) Create(ctx context.Context, fileId string, tagId string) (id int64, err error) {
+	data := g.Map{
+		"file_id": fileId,
+		"tag_id":  tagId,
+	}
+	id, err = d.Ctx(ctx).Data(data).InsertAndGetId()
+	if err != nil {
+		return 0, err
+	}
+	return
+}
