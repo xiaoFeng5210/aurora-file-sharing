@@ -11,6 +11,8 @@ import (
 	"context"
 
 	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 )
 
 // tagsDao is the data access object for the table tags.
@@ -42,6 +44,45 @@ func (d *tagsDao) QueryByTagId(ctx context.Context, tagId string) (res gdb.Recor
 	res, err = d.Ctx(ctx).Where("tag_id = ?", tagId).One()
 	if err != nil {
 		return nil, err
+	}
+	return
+}
+
+func (d *tagsDao) Create(ctx context.Context, data g.Map) (res int64, err error) {
+	// 判断是否存在
+	record, err := d.Ctx(ctx).Where("tag_name = ?", data["tag_name"]).One()
+	if err != nil {
+		return 0, err
+	}
+	if record != nil {
+		return 0, gerror.New("标签已存在")
+	}
+	res, err = d.Ctx(ctx).Data(data).InsertAndGetId()
+	if err != nil {
+		return 0, err
+	}
+	return
+}
+
+// 删除通过tagId
+func (d *tagsDao) Delete(ctx context.Context, tagId string) (err error) {
+	result, err := d.Ctx(ctx).Where("tag_id = ?", tagId).Delete()
+	if err != nil {
+		return err
+	}
+	// 判断是否有这个标签，有这个标签代表删除成功了
+	if rowsAffected, _ := result.RowsAffected(); rowsAffected == 0 {
+		return gerror.New("没有找到这个标签，无法进行删除")
+	}
+
+	return
+}
+
+// 删除通过主键ID
+func (d *tagsDao) DeleteById(ctx context.Context, id int64) (err error) {
+	_, err = d.Ctx(ctx).Delete("id", id)
+	if err != nil {
+		return err
 	}
 	return
 }

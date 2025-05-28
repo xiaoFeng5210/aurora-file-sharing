@@ -18,3 +18,21 @@ type TagsRes struct {
 	List  []*entity.Tags `json:"list" v:"required" dc:"列表数据"`
 	Total int            `json:"total" dc:"总数量"`
 }
+
+type TagsCreateReq struct {
+	g.Meta  `path:"/tags" method:"post" tags:"标签管理" summary:"创建标签"`
+	TagName string `v:"required" dc:"标签名称"`
+}
+
+type TagsCreateRes struct {
+	Id int64 `json:"id" dc:"主键ID"`
+}
+
+type DeleteReq struct {
+	g.Meta `path:"/tags" method:"delete" tags:"标签管理" summary:"删除标签"`
+	TagId  string `v:"required" dc:"标签ID"`
+}
+
+type DeleteRes struct {
+	TagId string `json:"tagId" dc:"标签ID"`
+}
