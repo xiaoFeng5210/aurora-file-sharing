@@ -26,19 +26,18 @@ func (c *ControllerV1) FileDelete(ctx context.Context, req *v1.FileDeleteReq) (r
 		return nil, gerror.New("转换文件信息失败")
 	}
 
-	if res.FileLocalPath != "" {
-		if _, err := os.Stat(res.FileLocalPath); os.IsNotExist(err) {
-			return nil, gerror.New("文件不存在")
-		}
-		err = os.Remove(res.FileLocalPath)
-		if err != nil {
-			return nil, gerror.New("删除本地文件失败")
-		}
-	}
-
 	_, err = dao.FileList.DeleteByFileId(ctx, req.FileId)
 	if err != nil {
 		return nil, err
+	}
+
+	if res.FileLocalPath != "" {
+		if _, err := os.Stat(res.FileLocalPath); os.IsNotExist(err) {
+			return nil, gerror.New("本地文件不存在")
+		}
+		if err := os.Remove(res.FileLocalPath); err != nil {
+			return nil, gerror.New("删除本地文件失败")
+		}
 	}
 
 	return
