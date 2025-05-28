@@ -8,6 +8,7 @@ import (
 	"aurora-file-sharing/internal/dao/internal"
 	"context"
 
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
@@ -24,6 +25,9 @@ var (
 
 // Add your custom methods and functionality below.
 func (d *fileTagRelationDao) Create(ctx context.Context, fileId string, tagId string) (id int64, err error) {
+	if fileId == "" || tagId == "" {
+		return 0, gerror.New("fileId和tagId不能为空")
+	}
 	data := g.Map{
 		"file_id": fileId,
 		"tag_id":  tagId,
