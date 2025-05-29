@@ -4,7 +4,23 @@ import (
 	"aurora-file-sharing/internal/model/entity"
 
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtime"
 )
+
+type FileListWithTags struct {
+	Id            int         `json:"id"            orm:"id"              description:""` //
+	FileId        string      `json:"fileId"        orm:"file_id"         description:""` //
+	FileName      string      `json:"fileName"      orm:"file_name"       description:""` //
+	FileSize      int64       `json:"fileSize"      orm:"file_size"       description:""` //
+	FileType      string      `json:"fileType"      orm:"file_type"       description:""` //
+	FileLocalPath string      `json:"fileLocalPath" orm:"file_local_path" description:""` //
+	FileOssPath   string      `json:"fileOssPath"   orm:"file_oss_path"   description:""` //
+	CreatedAt     *gtime.Time `json:"createdAt"     orm:"created_at"      description:""` //
+	UpdatedAt     *gtime.Time `json:"updatedAt"     orm:"updated_at"      description:""` //
+	TagId         string      `json:"tagId"         orm:"tag_id"          description:""` //
+
+	Tags []entity.Tags `json:"tags"`
+}
 
 // 查询
 type FileListReq struct {
@@ -16,8 +32,8 @@ type FileListReq struct {
 	PageSize int    `v:"min:1" dc:"每页数量"`
 }
 type FileListRes struct {
-	List  []*entity.FileList `json:"list" dc:"列表数据"`
-	Total int                `json:"total" dc:"总数量"`
+	List  []*FileListWithTags `json:"list" dc:"列表数据"`
+	Total int                 `json:"total" dc:"总数量"`
 }
 
 // 创建(更新)文件数据
