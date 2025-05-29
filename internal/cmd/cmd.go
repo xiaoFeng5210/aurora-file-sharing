@@ -8,6 +8,7 @@ import (
 	"github.com/gogf/gf/v2/os/gcmd"
 
 	"aurora-file-sharing/internal/controller/file_list"
+	"aurora-file-sharing/internal/controller/file_tag_relation"
 	"aurora-file-sharing/internal/controller/hello"
 	"aurora-file-sharing/internal/controller/tags"
 )
@@ -53,6 +54,7 @@ var (
 					hello.NewV1(),
 					file_list.NewV1(),
 					tags.NewV1(),
+					file_tag_relation.NewV1(),
 				)
 			})
 
