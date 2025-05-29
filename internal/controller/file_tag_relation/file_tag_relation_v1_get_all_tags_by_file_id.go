@@ -8,8 +8,10 @@ import (
 )
 
 func (c *ControllerV1) GetAllTagsByFileId(ctx context.Context, req *v1.GetAllTagsByFileIdReq) (res *v1.GetAllTagsByFileIdRes, err error) {
-	res = &v1.GetAllTagsByFileIdRes{}
-	res.Tags, err = service.GetAllTagsByFileId(ctx, req.FileId)
+	res = &v1.GetAllTagsByFileIdRes{
+		Tags: []v1.TagsAndFileInfo{},
+	}
+	err = service.GetAllTagsByFileId(ctx, req.FileId).Scan(&res.Tags)
 	if err != nil {
 		return nil, err
 	}

@@ -1,8 +1,16 @@
 package v1
 
 import (
+	"aurora-file-sharing/internal/model/entity"
+
 	"github.com/gogf/gf/v2/frame/g"
 )
+
+type TagsAndFileInfo struct {
+	entity.Tags
+	FileId   string `json:"file_id" dc:"文件ID"`
+	FileName string `json:"file_name" dc:"文件名称"`
+}
 
 // 根据文件id查询所有标签
 type GetAllTagsByFileIdReq struct {
@@ -11,5 +19,5 @@ type GetAllTagsByFileIdReq struct {
 }
 
 type GetAllTagsByFileIdRes struct {
-	Tags []interface{} `json:"tags" dc:"标签列表"`
+	Tags []TagsAndFileInfo `json:"tags" dc:"标签列表"`
 }
