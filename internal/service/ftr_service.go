@@ -19,7 +19,7 @@ type TagListWithFileId struct {
 	TagName   string      `json:"tagName"   orm:"tag_name"   description:"标签名称"` // 标签名称
 	CreatedAt *gtime.Time `json:"createdAt" orm:"created_at" description:"创建时间"` // 创建时间
 	UpdatedAt *gtime.Time `json:"updatedAt" orm:"updated_at" description:"更新时间"` // 更新时间
-	FileId    string      `json:"file_id"`
+	FileId    string      `json:"fileId" orm:"file_id" description:"文件id"`       // 文件id
 }
 
 func BindFileTag(ctx context.Context, fileId string, tagId string) (err error) {
