@@ -383,7 +383,6 @@ const HomePage = () => {
             ...file,
             status: 'success' as const
           }));
-          console.log('%c [  ]-310', 'font-size:13px; background:pink; color:#bf2c9f;', filesWithStatus)
           setFiles(filesWithStatus);
         } else {
           return Promise.reject()
