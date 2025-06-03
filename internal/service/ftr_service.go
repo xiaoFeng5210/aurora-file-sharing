@@ -80,9 +80,7 @@ func GetFileListWithTags(ctx context.Context, data *v1.FileListReq) (res *v1.Fil
 	if data.FileName != "" {
 		model = model.Where("file_list.file_name like ?", "%"+data.FileName+"%")
 	}
-
 	model = model.Limit(data.PageSize, (data.Page-1)*data.PageSize)
-
 	err = model.Scan(&fileList.List)
 	if err != nil {
 		return nil, err
