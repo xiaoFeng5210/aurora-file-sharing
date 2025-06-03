@@ -1,5 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 
+// 标签接口
+interface Tag {
+  id: number;
+  tagId: string;
+  tagName: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // 文件类型接口 - 更新以匹配后端返回的数据结构
 interface FileItem {
   id: number;
@@ -12,6 +21,7 @@ interface FileItem {
   createdAt: string;
   updatedAt: string;
   tagId: string;
+  tags?: Tag[]; // 添加标签数组字段
   // 前端状态字段
   status?: 'success' | 'uploading' | 'error';
   progress?: number;
@@ -264,6 +274,20 @@ const FileList = ({ files, onDeleteFile }: { files: FileItem[], onDeleteFile: (i
                         </span>
                         <span>{formatFileSize(file.fileSize)}</span>
                       </div>
+
+                      {/* 标签显示 */}
+                      {file.tags && file.tags.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {file.tags.map((tag) => (
+                            <span
+                              key={tag.tagId}
+                              className="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full"
+                            >
+                              {tag.tagName}
+                            </span>
+                          ))}
+                        </div>
+                      )}
 
                       <div className="mt-2 flex items-center">
                         <span className="text-xs text-slate-500 mr-3">
