@@ -12,7 +12,7 @@ import (
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
-	"github.com/google/uuid"
+	"github.com/gogf/gf/v2/util/guid"
 )
 
 var (
@@ -21,7 +21,7 @@ var (
 )
 
 func GenerateRandomID() string {
-	return uuid.New().String()
+	return guid.S()
 }
 
 func FileUpload(r *ghttp.Request) {

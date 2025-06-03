@@ -1,12 +1,10 @@
 package service
 
 import (
-	"context"
-
 	v1 "aurora-file-sharing/api/file_list/v1"
 	"aurora-file-sharing/internal/dao"
-
 	"aurora-file-sharing/internal/model/entity"
+	"context"
 
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -65,7 +63,9 @@ func GetAllTagsByFileId(ctx context.Context, fileId string) (res *gdb.Model) {
 	return
 }
 
-// 查询列表（带着拥有的标签数据）
+/*
+* 查询列表（带着拥有的标签数据）
+ */
 func GetFileListWithTags(ctx context.Context, data *v1.FileListReq) (res *v1.FileListRes, err error) {
 	fileList := v1.FileListRes{List: []*v1.FileListWithTags{}, Total: 0}
 	tagList := []*TagListWithFileId{}
@@ -96,6 +96,7 @@ func GetFileListWithTags(ctx context.Context, data *v1.FileListReq) (res *v1.Fil
 	}
 
 	for _, file := range fileList.List {
+		file.Tags = []entity.Tags{}
 		for _, tag := range tagList {
 			if tag.FileId == file.FileId {
 				file.Tags = append(file.Tags, entity.Tags{
@@ -105,8 +106,6 @@ func GetFileListWithTags(ctx context.Context, data *v1.FileListReq) (res *v1.Fil
 					CreatedAt: tag.CreatedAt,
 					UpdatedAt: tag.UpdatedAt,
 				})
-			} else {
-				file.Tags = []entity.Tags{}
 			}
 		}
 	}
