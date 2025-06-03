@@ -71,6 +71,9 @@ func GetFileListWithTags(ctx context.Context, data *v1.FileListReq) (res *v1.Fil
 	tagList := []*TagListWithFileId{}
 
 	model := dao.FileList.Ctx(ctx)
+	if data.TagId != "" {
+		model = model.InnerJoin("file_tag_relation", "ftr", "ftr.file_id = file_list.file_id").Where("ftr.tag_id = ?", data.TagId).Fields("file_list.*")
+	}
 	if data.FileId != "" {
 		model = model.Where("file_list.file_id = ?", data.FileId)
 	}
