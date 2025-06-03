@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import TagFilter from '../components/TagFilter';
 
 // 标签接口
 interface Tag {
@@ -357,11 +358,23 @@ const FileList = ({ files, onDeleteFile }: { files: FileItem[], onDeleteFile: (i
 // 主页组件
 const HomePage = () => {
   const [files, setFiles] = useState<FileItem[]>([]);
+  const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
 
   // 获取文件列表
-  const fetchFileList = async () => {
+  const fetchFileList = async (tagId?: string | null) => {
     try {
-      const response = await fetch('http://localhost:8000/file_list?page=1&pageSize=100');
+      // 构建查询参数
+      const params = new URLSearchParams({
+        page: '1',
+        pageSize: '100'
+      });
+
+      // 如果有选中的标签，添加到查询参数
+      if (tagId) {
+        params.append('tagId', tagId);
+      }
+
+      const response = await fetch(`http://localhost:8000/file_list?${params.toString()}`);
       if (response.ok) {
         const result: FileListResponse = await response.json();
         if (result.code === 0) {
@@ -384,8 +397,13 @@ const HomePage = () => {
 
   // 组件加载时获取文件列表
   useEffect(() => {
-    fetchFileList();
-  }, []);
+    fetchFileList(selectedTagId);
+  }, [selectedTagId]);
+
+  // 处理标签选择
+  const handleTagSelect = (tagId: string | null) => {
+    setSelectedTagId(tagId);
+  };
 
   // 上传文件到服务器
   const uploadFileToServer = async (file: File, fileItem: FileItem) => {
@@ -424,7 +442,7 @@ const HomePage = () => {
       xhr.addEventListener('load', () => {
         if (xhr.status >= 200 && xhr.status < 300) {
           // 上传成功，重新获取文件列表
-          fetchFileList();
+          fetchFileList(selectedTagId);
         } else {
           // 上传失败
           setFiles(prevFiles => {
@@ -521,6 +539,7 @@ const HomePage = () => {
       <div className="max-w-6xl mx-auto p-6">
         <div className="space-y-8">
           <UploadArea onFilesAdded={handleFilesAdded} />
+          <TagFilter selectedTagId={selectedTagId} onTagSelect={handleTagSelect} />
           <FileList files={files} onDeleteFile={handleDeleteFile} />
         </div>
       </div>
