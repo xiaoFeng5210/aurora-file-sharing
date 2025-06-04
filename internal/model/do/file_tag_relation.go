@@ -12,7 +12,7 @@ import (
 // FileTagRelation is the golang structure of table file_tag_relation for DAO operations like Where/Data.
 type FileTagRelation struct {
 	g.Meta    `orm:"table:file_tag_relation, do:true"`
-	Id        interface{} //
+	Id        interface{} // 主键ID
 	FileId    interface{} // 文件ID
 	TagId     interface{} // 标签ID
 	CreatedAt *gtime.Time // 关联创建时间

@@ -9,90 +9,156 @@ interface Tag {
   updatedAt: string;
 }
 
-// 标签API响应接口
-interface TagsResponse {
-  code: number;
-  data: {
-    list: Tag[];
-    total: number;
-  };
-}
-
 interface TagFilterProps {
-  selectedTagId?: string | null;
+  selectedTagId: string | null;
   onTagSelect: (tagId: string | null) => void;
+  onTagsChange?: () => void; // 标签变化时的回调
 }
 
-const TagFilter = ({ selectedTagId, onTagSelect }: TagFilterProps) => {
+const TagFilter = ({ selectedTagId, onTagSelect, onTagsChange }: TagFilterProps) => {
   const [tags, setTags] = useState<Tag[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [newTagName, setNewTagName] = useState('');
 
-  // 获取所有标签
+  // 获取标签列表
   const fetchTags = async () => {
-    setLoading(true);
     try {
       const response = await fetch('http://localhost:8000/tags?page=1&pageSize=100');
       if (response.ok) {
-        const result: TagsResponse = await response.json();
+        const result = await response.json();
         if (result.code === 0) {
-          setTags(result.data.list);
-        } else {
-          console.error('获取标签列表失败:', result);
+          setTags(result.data.list || []);
         }
-      } else {
-        console.error('获取标签列表失败:', await response.text());
       }
     } catch (error) {
       console.error('获取标签列表失败:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
-  // 组件加载时获取标签列表
+  // 创建新标签
+  const createTag = async () => {
+    if (!newTagName.trim()) return;
+
+    try {
+      const response = await fetch('http://localhost:8000/tags', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tagName: newTagName.trim()
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.code === 0) {
+          setNewTagName('');
+          setIsCreating(false);
+          await fetchTags(); // 重新获取标签列表
+          onTagsChange?.(); // 通知父组件标签列表变化
+        } else {
+          alert(result.message || '创建标签失败');
+        }
+      } else {
+        alert('创建标签失败');
+      }
+    } catch (error) {
+      console.error('创建标签失败:', error);
+      alert('创建标签失败');
+    }
+  };
+
+  // 删除标签
+  const deleteTag = async (tagId: string) => {
+    if (!confirm('确定要删除这个标签吗？')) return;
+
+    try {
+      const response = await fetch('http://localhost:8000/tags', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ tagId })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.code === 0) {
+          await fetchTags(); // 重新获取标签列表
+          if (selectedTagId === tagId) {
+            onTagSelect(null); // 如果删除的是当前选中的标签，清除选择
+          }
+          onTagsChange?.(); // 通知父组件标签列表变化
+        } else {
+          alert(result.message || '删除标签失败');
+        }
+      } else {
+        alert('删除标签失败');
+      }
+    } catch (error) {
+      console.error('删除标签失败:', error);
+      alert('删除标签失败');
+    }
+  };
+
   useEffect(() => {
     fetchTags();
   }, []);
 
-  // 处理标签点击
-  const handleTagClick = (tagId: string) => {
-    if (selectedTagId === tagId) {
-      // 如果点击的是已选中的标签，则取消选择
-      onTagSelect(null);
-    } else {
-      // 选择新标签
-      onTagSelect(tagId);
-    }
-  };
-
-  // 处理"全部"按钮点击
-  const handleAllClick = () => {
-    onTagSelect(null);
-  };
-
-  if (loading) {
-    return (
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h3 className="font-medium text-slate-800 mb-4">标签筛选</h3>
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-500"></div>
-          <span className="ml-2 text-slate-500">加载中...</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6">
-      <h3 className="font-medium text-slate-800 mb-4">标签筛选</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="font-medium text-slate-800">标签筛选</h3>
+        <button
+          onClick={() => setIsCreating(true)}
+          className="px-3 py-1.5 bg-indigo-500 hover:bg-indigo-600 text-white text-sm rounded-lg transition-colors flex items-center gap-1"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          新建标签
+        </button>
+      </div>
+
+      {/* 新建标签输入框 */}
+      {isCreating && (
+        <div className="mb-4 p-3 border border-slate-200 rounded-lg bg-slate-50">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newTagName}
+              onChange={(e) => setNewTagName(e.target.value)}
+              placeholder="请输入标签名称"
+              className="flex-1 px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              onKeyPress={(e) => e.key === 'Enter' && createTag()}
+            />
+            <button
+              onClick={createTag}
+              className="px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-sm rounded-md transition-colors"
+            >
+              确定
+            </button>
+            <button
+              onClick={() => {
+                setIsCreating(false);
+                setNewTagName('');
+              }}
+              className="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-md transition-colors"
+            >
+              取消
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2">
-        {/* 全部按钮 */}
+        {/* 全部标签 */}
         <button
-          onClick={handleAllClick}
-          className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 ${!selectedTagId
-            ? 'bg-indigo-500 text-white border-indigo-500 shadow-md'
-            : 'bg-white text-slate-600 border-slate-300 hover:border-indigo-300 hover:text-indigo-600'
+          onClick={() => onTagSelect(null)}
+          className={`px-3 py-1.5 rounded-full text-sm transition-colors ${selectedTagId === null
+            ? 'bg-indigo-500 text-white'
+            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
         >
           全部
@@ -100,45 +166,31 @@ const TagFilter = ({ selectedTagId, onTagSelect }: TagFilterProps) => {
 
         {/* 标签列表 */}
         {tags.map((tag) => (
-          <button
-            key={tag.tagId}
-            onClick={() => handleTagClick(tag.tagId)}
-            className={`px-3 py-1.5 text-sm rounded-full border transition-all duration-200 ${selectedTagId === tag.tagId
-              ? 'bg-indigo-500 text-white border-indigo-500 shadow-md'
-              : 'bg-white text-slate-600 border-slate-300 hover:border-indigo-300 hover:text-indigo-600'
-              }`}
-          >
-            {tag.tagName}
-          </button>
-        ))}
-      </div>
-
-      {/* 空状态 */}
-      {tags.length === 0 && !loading && (
-        <div className="text-center py-8">
-          <svg className="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-          </svg>
-          <p className="text-slate-500">暂无标签</p>
-        </div>
-      )}
-
-      {/* 选中状态提示 */}
-      {selectedTagId && (
-        <div className="mt-4 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-indigo-700">
-              已选择标签: <strong>{tags.find(tag => tag.tagId === selectedTagId)?.tagName}</strong>
-            </span>
+          <div key={tag.tagId} className="flex items-center group">
             <button
-              onClick={handleAllClick}
-              className="text-xs text-indigo-600 hover:text-indigo-800 underline"
+              onClick={() => onTagSelect(tag.tagId)}
+              className={`px-3 py-1.5 rounded-l-full text-sm transition-colors ${selectedTagId === tag.tagId
+                ? 'bg-indigo-500 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
             >
-              清除筛选
+              {tag.tagName}
+            </button>
+            <button
+              onClick={() => deleteTag(tag.tagId)}
+              className={`px-2 py-1.5 rounded-r-full text-sm transition-colors opacity-0 group-hover:opacity-100 ${selectedTagId === tag.tagId
+                ? 'bg-indigo-500 text-white hover:bg-indigo-600'
+                : 'bg-slate-100 text-slate-500 hover:bg-red-100 hover:text-red-600'
+                }`}
+              title="删除标签"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
             </button>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 };

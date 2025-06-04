@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import TagFilter from '../components/TagFilter';
+import FileTagModal from '../components/FileTagModal';
 
 // 标签接口
 interface Tag {
@@ -114,7 +115,15 @@ const UploadArea = ({ onFilesAdded }: { onFilesAdded: (files: File[]) => void })
 };
 
 // 文件列表组件
-const FileList = ({ files, onDeleteFile }: { files: FileItem[], onDeleteFile: (id: string) => void }) => {
+const FileList = ({
+  files,
+  onDeleteFile,
+  onTagModalOpen
+}: {
+  files: FileItem[],
+  onDeleteFile: (id: string) => void,
+  onTagModalOpen: (file: FileItem) => void
+}) => {
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1000) return bytes + ' B';
     if (bytes < 1000 * 1000) return Math.round(bytes / 1000) + ' KB';
@@ -326,6 +335,15 @@ const FileList = ({ files, onDeleteFile }: { files: FileItem[], onDeleteFile: (i
                   {/* 操作按钮 */}
                   <div className="flex items-center space-x-1 ml-4">
                     <button
+                      onClick={() => onTagModalOpen(file)}
+                      className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+                      title="管理标签"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                      </svg>
+                    </button>
+                    <button
                       onClick={() => handleDownload(file)}
                       className="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
                       title="下载文件"
@@ -359,6 +377,7 @@ const FileList = ({ files, onDeleteFile }: { files: FileItem[], onDeleteFile: (i
 const HomePage = () => {
   const [files, setFiles] = useState<FileItem[]>([]);
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
+  const [tagModalFile, setTagModalFile] = useState<FileItem | null>(null);
 
   // 获取文件列表
   const fetchFileList = async (tagId?: string | null) => {
@@ -538,9 +557,25 @@ const HomePage = () => {
       <div className="max-w-6xl mx-auto p-6">
         <div className="space-y-8">
           <UploadArea onFilesAdded={handleFilesAdded} />
-          <TagFilter selectedTagId={selectedTagId} onTagSelect={handleTagSelect} />
-          <FileList files={files} onDeleteFile={handleDeleteFile} />
+          <TagFilter
+            selectedTagId={selectedTagId}
+            onTagSelect={handleTagSelect}
+            onTagsChange={() => fetchFileList(selectedTagId)}
+          />
+          <FileList
+            files={files}
+            onDeleteFile={handleDeleteFile}
+            onTagModalOpen={setTagModalFile}
+          />
         </div>
+
+        {/* 文件标签管理弹窗 */}
+        <FileTagModal
+          isOpen={tagModalFile !== null}
+          onClose={() => setTagModalFile(null)}
+          file={tagModalFile}
+          onTagsUpdated={() => fetchFileList(selectedTagId)}
+        />
       </div>
     </div>
   );
