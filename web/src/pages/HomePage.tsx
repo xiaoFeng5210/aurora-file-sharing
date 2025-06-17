@@ -156,13 +156,45 @@ const FileList = ({
   };
 
   // 下载文件
-  const handleDownload = (file: FileItem) => {
-    const link = document.createElement('a');
-    link.href = `http://localhost:8000/${file.fileOssPath}`;
-    link.download = file.fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownload = async (file: FileItem) => {
+    try {
+      // 调用后端下载API
+      const response = await fetch(`http://localhost:8000/download?fileId=${file.fileId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`下载失败: ${response.status}`);
+      }
+
+
+      console.log('%c [  ]-174', 'font-size:13px; background:pink; color:#bf2c9f;', response)
+
+      // 获取文件blob
+      const blob = await response.blob();
+
+      // 创建下载链接
+      const url = window.URL.createObjectURL(blob);
+
+      console.log('%c [  ]-179', 'font-size:13px; background:pink; color:#bf2c9f;', url)
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = file.fileName; // 使用原始文件名
+      document.body.appendChild(link);
+      link.click();
+
+      // 清理资源
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      console.log(`文件 ${file.fileName} 下载成功`);
+    } catch (error) {
+      console.error('下载文件失败:', error);
+      alert('下载文件失败，请稍后重试');
+    }
   };
 
   // 删除文件
