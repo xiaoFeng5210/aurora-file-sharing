@@ -3,7 +3,7 @@
 gfcli:
   gen:
     dao:
-      - link: "pgsql:zhangqingfeng:12345678@tcp(localhost:5432)/file_db"
+      - link: "pgsql:zhangqingfeng:12345678@tcp(0.0.0.0:5432)/file_db"
         descriptionTag: true
 
   docker:

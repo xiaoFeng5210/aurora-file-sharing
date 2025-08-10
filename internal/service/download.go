@@ -34,5 +34,4 @@ func DownloadFile(ctx context.Context, fileId string) (res *downloadV1.DownloadR
 	return &downloadV1.DownloadRes{
 		FileId: currentFile.FileId,
 	}, nil
-
 }

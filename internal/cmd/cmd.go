@@ -48,6 +48,17 @@ var (
 		Brief: "start http server",
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			s := g.Server()
+
+			s.SetAddr("0.0.0.0:8000")
+			// 配置静态文件服务 - 服务整个 web/dist 目录
+			s.AddStaticPath("/assets", "web/dist/assets")
+			s.SetClientMaxBodySize(100 * 1024 * 1024) // 100MB
+			s.AddStaticPath("/", "web/dist")
+			// 首页路由 - 直接返回 index.html
+			s.BindHandler("/", func(r *ghttp.Request) {
+				r.Response.ServeFile("web/dist/index.html")
+			})
+
 			s.Group("/", func(group *ghttp.RouterGroup) {
 				group.Middleware(MiddlewareCORS)
 				group.Middleware(ghttp.MiddlewareHandlerResponse)
